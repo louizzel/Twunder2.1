@@ -1,0 +1,106 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Twunder 2.1";
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Retrieve tweets without saving it in the database.">
+    <meta name="author" content="Zeo">
+
+    <title>Twunder 2.0</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/bootstrap-formhelpers.min.css" rel="stylesheet">
+    <link href="~/Content/home-index.css" rel="stylesheet">
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">Twunder 2.0</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Basic Search</a></li>
+                    <li class="" title="This feature is not yet available."><a href="#" class="advanced-search">Advanced Search</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header">
+            <h3>What do you want to search?</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search_term" title="Input the term you want to search...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default search-button" type="button">
+                            <span class="glyphicon glyphicon-search"></span>
+                            <span class="loader"><img src="/Images/ajax-loader.gif" width="14" height="14"></span>
+                            <span class="export">Export</span>
+                        </button>
+                    </span>
+                </div>
+                <!-- /input-group -->
+            </div>
+            <div class="col-lg-12" style="padding: 5px 0">
+                <div class="form-group">
+                    <label class="col-lg-1 control-label center">From</label>
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control date-pick" id="fromDate" placeholder="Date">                        
+                    </div>
+                    <div class="col-lg-2"><div class="bfh-timepicker" data-mode="12h" id="fromTime"></div></div>
+
+                    <label class="col-lg-1 control-label center">To</label>
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control date-pick" id="toDate" placeholder="Date">
+                    </div>
+                    <div class="col-lg-2"><div class="bfh-timepicker" data-mode="12h" id="toTime"></div></div>
+                </div>
+            </div>
+
+            <div class="notifications">
+                <span id="timeSpent"></span>
+                <div id="count" class="alert"></div>
+                @*<a href="#" id="btnExport" class="btn btn-info col-lg-12 col-md-12 col-sm-12">Want to export the results to a CSV file?</a>*@
+            </div>
+            <table class="table table-hover" id="tblResult">
+                <thead>
+                    <tr>
+                    </tr>
+                </thead>
+                <tbody id="tbodyResult"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted">Twunder 2.0 as of June 18, 2014.</p>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="/Scripts/bootstrap-formhelpers.min.js"></script>
+    <script src="/Scripts/bootstrap-formhelpers-timepicker.js"></script>
+    <script src="/Scripts/home-index.js"></script>
+</body>
+</html>
