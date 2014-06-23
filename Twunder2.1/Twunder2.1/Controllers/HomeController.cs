@@ -15,5 +15,10 @@ namespace Twunder2._1.Controllers
         {
             return View();
         }
+
+        public ActionResult Search()
+        {
+            return View();
+        }
     }
 }

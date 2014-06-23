@@ -58,7 +58,7 @@ namespace Twunder2._1.Controllers.Api
                         }
                     }
                 };
-                WriteFile(result.GroupBy(m => m.StatusID).Select(n => n.First()).OrderByDescending(s => s.StatusID).ToList(), query);
+                //WriteFile(result.GroupBy(m => m.StatusID).Select(n => n.First()).OrderByDescending(s => s.StatusID).ToList(), query);
                 return result.GroupBy(m => m.StatusID).Select(n => n.First()).OrderByDescending(s => s.StatusID).ToList();
             }
             catch (Exception e)
@@ -122,7 +122,7 @@ namespace Twunder2._1.Controllers.Api
                         ConsumerKey = System.Configuration.ConfigurationManager.AppSettings["ConsumerKey"],
                         ConsumerSecret = System.Configuration.ConfigurationManager.AppSettings["ConsumerSecret"],
                         AccessToken = System.Configuration.ConfigurationManager.AppSettings["AccessToken"],
-                        AccessTokenSecret= System.Configuration.ConfigurationManager.AppSettings["AccessTokenSecret"]
+                        AccessTokenSecret = System.Configuration.ConfigurationManager.AppSettings["AccessTokenSecret"]
                     }
                 };
 
@@ -153,9 +153,9 @@ namespace Twunder2._1.Controllers.Api
                     else
                     {
                         var temp = await (from search in twitterContext.Search
-                                where search.Type == SearchType.Search && search.Count == 1000
-                                          && search.Query == query && search.MaxID == maxID
-                                          && search.Until == DateTime.Parse(toDate).AddDays(1)
+                                          where search.Type == SearchType.Search && search.Count == 1000
+                                                    && search.Query == query && search.MaxID == maxID
+                                                    && search.Until == DateTime.Parse(toDate).AddDays(1)
                                           select search).SingleOrDefaultAsync();
                         foreach (var each in temp.Statuses)
                         {
@@ -179,29 +179,127 @@ namespace Twunder2._1.Controllers.Api
             }
         }
 
-        public void WriteFile(List<Status> data, string query)
+        public async Task<string> Get(string query, ulong maxID, string toDate, string fromDate, string export)
         {
-            string fileName = @"C:\wamp\" + query + ".csv";
+            var dateOnly = DateTime.Parse(toDate).Date;            
+            DateTime currentDate = DateTime.Now;
+            var result = new List<Tweets>();
+            var requestCounter = 0;
 
             try
             {
-                // Check if file already exists. If yes, delete it. 
+                var _auth = new SingleUserAuthorizer
+                {
+                    CredentialStore = new SingleUserInMemoryCredentialStore
+                    {
+                        ConsumerKey = System.Configuration.ConfigurationManager.AppSettings["ConsumerKey"],
+                        ConsumerSecret = System.Configuration.ConfigurationManager.AppSettings["ConsumerSecret"],
+                        AccessToken = System.Configuration.ConfigurationManager.AppSettings["AccessToken"],
+                        AccessTokenSecret = System.Configuration.ConfigurationManager.AppSettings["AccessTokenSecret"]
+                    }
+                };
+
+                var gatherMore = true;
+
+                using (var twitterContext = new TwitterContext(_auth))
+                {
+                    string fileName = @"C:\wamp\" + query + ".csv";
+                    var fileNameCtr = 1;
+                    while (File.Exists(fileName))
+                    {
+                        fileName = @"C:\wamp\" + query + "(" + fileNameCtr++ + ").csv";
+                    }
+
+                    using (FileStream fs = File.Create(fileName))
+                    {
+                        byte[] header = new UTF8Encoding(true).GetBytes("Date,User Id,Tweet,Link,User Profile" + "\n");
+                        fs.Write(header, 0, header.Length);
+
+                        while (gatherMore)
+                        {
+                            if (requestCounter > 175)
+                            {
+                                var x = currentDate.AddMinutes(16);
+                                if (DateTime.Compare(currentDate.AddMinutes(16), DateTime.Now) < 0)
+                                {
+                                    requestCounter = 0;
+                                    currentDate = DateTime.Now;
+                                }
+                            }
+                            else
+                            {
+                                requestCounter++;
+                                var temp = await (from search in twitterContext.Search
+                                                  where search.Type == SearchType.Search && search.Count == 1000
+                                                            && search.Query == query && search.MaxID == maxID
+                                                            && search.ResultType == ResultType.Recent
+                                                            && search.Until == dateOnly.AddDays(1)
+                                                  select search).SingleOrDefaultAsync();
+                                var ctr = 1;
+                                if (temp != null)
+                                {
+
+                                    foreach (var each in temp.Statuses)
+                                    {
+                                        if (ctr < temp.Statuses.Count || temp.Statuses.Count == 1)
+                                        {
+                                            if (DateTime.Compare(DateTime.Parse(fromDate), each.CreatedAt.AddHours(8)) <= 0 && DateTime.Compare(DateTime.Parse(toDate), each.CreatedAt.AddHours(8)) >= 0)
+                                            {
+                                                var temporaryTweet = new Twunder2._1.Models.Tweets();
+                                                temporaryTweet.CreatedAt = each.CreatedAt.AddHours(8);
+                                                temporaryTweet.ProfileImageUrl = each.User.ProfileImageUrl;
+                                                temporaryTweet.Username = each.User.ScreenNameResponse;
+                                                temporaryTweet.StatusID = each.StatusID.ToString();
+                                                temporaryTweet.Name = each.User.Name;
+                                                temporaryTweet.Tweet = each.Text.Replace("\n", " ").Replace("\r\n", " ").Replace("\r", " ");
+                                                temporaryTweet.TweetLink = "https://twitter.com/" + each.User.ScreenNameResponse + "/status/" + each.StatusID.ToString();
+                                                result.Add(temporaryTweet);
+
+                                                byte[] line = new UTF8Encoding(true).GetBytes(temporaryTweet.CreatedAt + "," + temporaryTweet.Username + ",\"" + temporaryTweet.Tweet + "\"," + temporaryTweet.TweetLink + ",https://twitter.com/" + temporaryTweet.Username + "\n");
+                                                fs.Write(line, 0, line.Length);
+                                            }
+
+                                            gatherMore = (DateTime.Compare(DateTime.Parse(fromDate), each.CreatedAt.AddHours(8)) <= 0);
+
+                                            if (temp.Statuses.Count == 1)
+                                                gatherMore = false;
+                                        }
+
+                                        ctr++;
+                                        maxID = each.StatusID;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return "Tweet count: " + result.Count;
+                };
+            }
+            catch (Exception e)
+            {
+                throw new Exception("An error occured. Please check your network connection. " + e.Message);
+            }
+        }
+
+        public void WriteFile(List<Twunder2._1.Models.Tweets> data, string query)
+        {
+            string fileName = @"C:\wamp\" + query + ".csv";
+            try
+            {
                 var ctr = 1;
                 while (File.Exists(fileName))
                 {
-                    fileName = @"C:\wamp\" + query + "(" + ctr + ").csv";
-                    ctr++;
+                    fileName = @"C:\wamp\" + query + "(" + ctr++ + ").csv";
                 }
 
-                // Create a new file 
                 using (FileStream fs = File.Create(fileName))
                 {
-                    byte[] header = new UTF8Encoding(true).GetBytes("Date,User Id,Tweet,Link" + "\n");
+                    byte[] header = new UTF8Encoding(true).GetBytes("Date,User Id,Tweet,Link,User Profile" + "\n");
                     fs.Write(header, 0, header.Length);
 
                     foreach (var temp in data)
                     {
-                        byte[] line = new UTF8Encoding(true).GetBytes(temp.CreatedAt.AddHours(8) + "," + temp.User.UserID + "," + temp.Text.Replace("\n", " ").Replace("\r\n", " ").Replace("\r", " ") + ",https://twitter.com/" + temp.User.UserID + "/status/" + temp.StatusID + "\n");
+                        byte[] line = new UTF8Encoding(true).GetBytes(temp.CreatedAt + "," + temp.Username + "," + temp.Tweet + "," + temp.TweetLink + ",https://twitter.com/" + temp.Username + "\n");
                         fs.Write(line, 0, line.Length);
                     }
                 }
