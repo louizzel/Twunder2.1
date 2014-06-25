@@ -13,7 +13,8 @@ namespace Twunder2._1.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("search");
+            //return View();
         }
 
         public ActionResult Search()

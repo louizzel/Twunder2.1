@@ -34,8 +34,8 @@
     }).datepicker('setDate', new Date());
 
     $('button.search-button').click(function () {
-        $('.loader').toggle();
-        $('.glyphicon-search').toggle();
+        $('.loader').show();
+        $('.glyphicon-search').hide();
         $('.search-button').addClass('disabled');
         query = $('#search_term').val();
 
@@ -60,6 +60,8 @@
             }, fail: function (data) {
                 gatherMore = false;
                 $('#count').html('Error encountered. Please refresh the page and search again').addClass('alert-danger').removeClass('alert-success');
+            }, error: function (request, status, error) {
+                console.log(request);
             }
         }).done(function () {
             console.log("false and done");

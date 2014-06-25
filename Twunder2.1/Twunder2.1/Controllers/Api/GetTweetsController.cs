@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Twunder2._1.Models;
+using System.Web;
 
 namespace Twunder2._1.Controllers.Api
 {
@@ -203,11 +204,17 @@ namespace Twunder2._1.Controllers.Api
 
                 using (var twitterContext = new TwitterContext(_auth))
                 {
-                    string fileName = @"C:\wamp\" + query + ".csv";
+                    var directory = AppDomain.CurrentDomain.BaseDirectory;
+
+                    if(!Directory.Exists(directory + "Files\\"))
+                        Directory.CreateDirectory(directory + "Files\\");
+
+                    string fileName = directory + "Files\\" + query + ".csv";
                     var fileNameCtr = 1;
+                    
                     while (File.Exists(fileName))
                     {
-                        fileName = @"C:\wamp\" + query + "(" + fileNameCtr++ + ").csv";
+                        fileName = directory + "Files\\" + query + "(" + fileNameCtr++ + ").csv";
                     }
 
                     using (FileStream fs = File.Create(fileName))
@@ -217,9 +224,8 @@ namespace Twunder2._1.Controllers.Api
 
                         while (gatherMore)
                         {
-                            if (requestCounter > 175)
+                            if (requestCounter > 180)
                             {
-                                var x = currentDate.AddMinutes(16);
                                 if (DateTime.Compare(currentDate.AddMinutes(16), DateTime.Now) < 0)
                                 {
                                     requestCounter = 0;
@@ -238,7 +244,8 @@ namespace Twunder2._1.Controllers.Api
                                 var ctr = 1;
                                 if (temp != null)
                                 {
-
+                                    if (temp.Statuses.Count == 0)
+                                        gatherMore = false;
                                     foreach (var each in temp.Statuses)
                                     {
                                         if (ctr < temp.Statuses.Count || temp.Statuses.Count == 1)
@@ -277,7 +284,7 @@ namespace Twunder2._1.Controllers.Api
             }
             catch (Exception e)
             {
-                throw new Exception("An error occured. Please check your network connection. " + e.Message);
+                throw new Exception("An error occured. " + e.Message);
             }
         }
 
