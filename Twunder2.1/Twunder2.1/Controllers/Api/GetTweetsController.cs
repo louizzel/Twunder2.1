@@ -182,7 +182,7 @@ namespace Twunder2._1.Controllers.Api
 
         public async Task<string> Get(string query, ulong maxID, string toDate, string fromDate, string export)
         {
-            var dateOnly = DateTime.Parse(toDate).Date;            
+            var dateOnly = DateTime.Parse(toDate).Date;
             DateTime currentDate = DateTime.Now;
             var result = new List<Tweets>();
             var requestCounter = 0;
@@ -204,18 +204,30 @@ namespace Twunder2._1.Controllers.Api
 
                 using (var twitterContext = new TwitterContext(_auth))
                 {
-                    var directory = AppDomain.CurrentDomain.BaseDirectory;
+                    //var directory = AppDomain.CurrentDomain.BaseDirectory;
 
-                    if(!Directory.Exists(directory + "Files\\"))
-                        Directory.CreateDirectory(directory + "Files\\");
+                    //if (!Directory.Exists(directory + "Files\\"))
+                    //    Directory.CreateDirectory(directory + "Files\\");
 
-                    string fileName = directory + "Files\\" + query + ".csv";
+                    //string fileName = directory + "Files\\" + query + ".csv";
+                    //var fileNameCtr = 1;
+
+                    //while (File.Exists(fileName))
+                    //{
+                    //    fileName = directory + "Files\\" + query + "(" + fileNameCtr++ + ").csv";
+                    //}
+                    /*****/
+                    if (!Directory.Exists("C:\\Files\\"))
+                        Directory.CreateDirectory("C:\\Files\\");
+
+                    string fileName = "C:\\Files\\" + query + ".csv";
                     var fileNameCtr = 1;
-                    
+
                     while (File.Exists(fileName))
                     {
-                        fileName = directory + "Files\\" + query + "(" + fileNameCtr++ + ").csv";
+                        fileName = "C:\\Files\\" + query + "(" + fileNameCtr++ + ").csv";
                     }
+                    /*****/
 
                     using (FileStream fs = File.Create(fileName))
                     {
@@ -224,7 +236,7 @@ namespace Twunder2._1.Controllers.Api
 
                         while (gatherMore)
                         {
-                            if (requestCounter > 180)
+                            if (requestCounter > 178)
                             {
                                 if (DateTime.Compare(currentDate.AddMinutes(16), DateTime.Now) < 0)
                                 {
@@ -279,12 +291,22 @@ namespace Twunder2._1.Controllers.Api
                             }
                         }
                     }
-                    return "Tweet count: " + result.Count;
+
+                    string windir = Environment.GetEnvironmentVariable("WINDIR");
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = windir + @"\explorer.exe";
+                    process.StartInfo.Arguments = "C:\\Files\\";
+                    process.Start();
+
+                    return "Tweet count: " + result.Count + "<br />File can be found in : " + "<a href='file:////C:\\Files\\'>C:\\Files\\</a>";
                 };
             }
             catch (Exception e)
             {
-                throw new Exception("An error occured. " + e.Message);
+                if (e.Message.Contains("Rate limit exceeded"))
+                    throw new Exception("An error occured. " + e.Message + ". Please try again after 15 minutes.");
+                else
+                    throw new Exception("An error occured. " + e.Message);
             }
         }
 

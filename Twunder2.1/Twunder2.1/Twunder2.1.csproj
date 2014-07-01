@@ -374,6 +374,7 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
     <Content Include="Content\bootstrap-formhelpers.min.css" />
+    <None Include="Properties\PublishProfiles\TwunderProfile.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Images\ajax-loader.gif" />
     <Content Include="Scripts\bootstrap-formhelpers-timepicker.js" />

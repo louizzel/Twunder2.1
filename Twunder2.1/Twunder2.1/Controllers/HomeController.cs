@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Twunder2._1.Controllers
 {
-    public class HomeController : AsyncController
+    public class HomeController : Controller
     {
         public ActionResult Index()
         {
-            return RedirectToAction("search");
+            return RedirectToAction("Search","Home");
             //return View();
         }
 

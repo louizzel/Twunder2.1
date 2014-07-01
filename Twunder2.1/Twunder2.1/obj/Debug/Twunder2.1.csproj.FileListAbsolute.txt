@@ -132,4 +132,3 @@ C:\Users\v-loogal\Documents\GitHub\Twunder2.1\Twunder2.1\Twunder2.1\bin\zh-Hant\
 C:\Users\v-loogal\Documents\GitHub\Twunder2.1\Twunder2.1\Twunder2.1\obj\Debug\Twunder2.1.csproj.App.config
 C:\Users\v-loogal\Documents\GitHub\Twunder2.1\Twunder2.1\Twunder2.1\obj\Debug\Twunder2.1.dll
 C:\Users\v-loogal\Documents\GitHub\Twunder2.1\Twunder2.1\Twunder2.1\obj\Debug\Twunder2.1.pdb
-C:\Users\v-loogal\Documents\GitHub\Twunder2.1\Twunder2.1\Twunder2.1\obj\Debug\Twunder2.1.csprojResolveAssemblyReference.cache

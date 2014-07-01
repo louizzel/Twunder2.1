@@ -30,7 +30,7 @@
 
     $('#toDate').datepicker({
         minDate: 0,
-        maxDate: 0        
+        maxDate: 0
     }).datepicker('setDate', new Date());
 
     $('button.search-button').click(function () {
@@ -47,13 +47,13 @@
 
         if ($('#fromDate').val() != "")
             fromDate = new Date($('#fromDate').val() + ' ' + $('#fromTime').val()).valueOf();
-        
+
         $.ajax('/api/gettweets', {
             method: 'GET',
             data: { 'query': query, 'maxID': maxID, 'toDate': $('#toDate').val() + ' ' + $('#toTime').val(), 'fromDate': $('#fromDate').val() + ' ' + $('#fromTime').val(), 'export': 'Yes' },
             statusCode: {
                 500: function () {
-                    console.log('I need to rest for a little while...');                    
+                    console.log('I need to rest for a little while...');
                 }
             }, success: function (data) {
                 $('#count').html(data).addClass('alert-success');
@@ -62,6 +62,10 @@
                 $('#count').html('Error encountered. Please refresh the page and search again').addClass('alert-danger').removeClass('alert-success');
             }, error: function (request, status, error) {
                 console.log(request);
+                $('#count').html(request.responseJSON.ExceptionMessage).addClass('alert-danger').removeClass('alert-success');
+                $('.loader').hide();
+                $('.glyphicon-search').show();
+                $('.search-button').removeClass('disabled');
             }
         }).done(function () {
             console.log("false and done");
